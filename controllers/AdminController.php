@@ -3,41 +3,54 @@
 namespace Controllers;
 
 use Model\AdminCita;
+use Model\Servicio;
 use MVC\Router;
 
 class AdminController {
-    public static function index( Router $router ) {
+    public static function index(Router $router) {
         session_start();
 
         isAdmin();
 
+        // Obtener los filtros de la URL
         $fecha = $_GET['fecha'] ?? date('Y-m-d');
-        $fechas = explode('-', $fecha);
+        $categoria = $_GET['categoria'] ?? '';
 
-        if( !checkdate( $fechas[1], $fechas[2], $fechas[0]) ) {
+        $fechas = explode('-', $fecha);
+        if (!checkdate($fechas[1], $fechas[2], $fechas[0])) {
             header('Location: /404');
         }
 
-        // Consultar la base de datos
-        $consulta = "SELECT citas.id, citas.hora, CONCAT( usuarios.nombre, ' ', usuarios.apellido) as cliente, ";
-        $consulta .= " usuarios.email, usuarios.telefono, servicios.nombre as servicio, servicios.precio  ";
-        $consulta .= " FROM citas  ";
-        $consulta .= " LEFT OUTER JOIN usuarios ";
-        $consulta .= " ON citas.usuarioId=usuarios.id  ";
-        $consulta .= " LEFT OUTER JOIN citasServicios ";
-        $consulta .= " ON citasServicios.citaId=citas.id ";
-        $consulta .= " LEFT OUTER JOIN servicios ";
-        $consulta .= " ON servicios.id=citasServicios.servicioId ";
-        $consulta .= " WHERE fecha =  '${fecha}' ";
+        // Construir la consulta SQL
+        $consulta = "SELECT citas.id, citas.hora, CONCAT(usuarios.nombre, ' ', usuarios.apellido) as cliente, ";
+        $consulta .= "usuarios.email, usuarios.telefono, servicios.nombre as servicio, servicios.precio, servicios.categoria ";
+        $consulta .= "FROM citas ";
+        $consulta .= "LEFT OUTER JOIN usuarios ON citas.usuarioId = usuarios.id ";
+        $consulta .= "LEFT OUTER JOIN citasServicios ON citasServicios.citaId = citas.id ";
+        $consulta .= "LEFT OUTER JOIN servicios ON servicios.id = citasServicios.servicioId ";
+        $consulta .= "WHERE 1=1 ";
+
+        // Filtrar por fecha si se seleccionó
+        if ($fecha) {
+            $consulta .= "AND citas.fecha = '${fecha}' ";
+        }
+
+        // Filtrar por categoría si se seleccionó
+        if ($categoria) {
+            $categoria = trim($categoria);
+            $consulta .= "AND LOWER(servicios.categoria) = LOWER('${categoria}') ";
+        }
 
         $citas = AdminCita::SQL($consulta);
 
-        //debuguear($citas);
-        
+        // Obtener todas las categorías únicas para el campo de selección
+        $categorias = Servicio::obtenerCategorias();
+
         $router->render('admin/index', [
             'nombre' => $_SESSION['nombre'],
-            'citas' => $citas, 
-            'fecha' => $fecha
+            'citas' => $citas,
+            'fecha' => $fecha,
+            'categorias' => $categorias
         ]);
     }
 }

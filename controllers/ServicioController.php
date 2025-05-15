@@ -24,6 +24,7 @@ class ServicioController {
         isAdmin();
         $servicio = new Servicio;
         $alertas = [];
+        $categorias = Servicio::obtenerCategorias();
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $servicio->sincronizar($_POST);
@@ -39,7 +40,8 @@ class ServicioController {
         $router->render('servicios/crear', [
             'nombre' => $_SESSION['nombre'],
             'servicio' => $servicio,
-            'alertas' => $alertas
+            'alertas' => $alertas,
+            'categorias' => $categorias
         ]);
     }
 
@@ -55,6 +57,7 @@ class ServicioController {
         } 
 
         $alertas = [];
+        $categorias = Servicio::obtenerCategorias();
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $servicio->sincronizar($_POST);
@@ -70,7 +73,8 @@ class ServicioController {
         $router->render('servicios/actualizar', [
             'nombre' => $_SESSION['nombre'],
             'servicio' => $servicio,
-            'alertas' => $alertas
+            'alertas' => $alertas,
+            'categorias' => $categorias
         ]);
     }
 

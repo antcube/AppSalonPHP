@@ -16,6 +16,18 @@
                 value="<?php echo $fecha; ?>"
             />
         </div>
+        <div class="campo">
+            <label for="categoria">Categoría</label>
+            <select id="categoria" name="categoria">
+                <option value="">-- Todas las Categorías --</option>
+                <?php foreach ($categorias as $categoria): ?>
+                    <option value="<?php echo $categoria->categoria; ?>" <?php echo $categoria->categoria == ($_GET['categoria'] ?? '') ? 'selected' : ''; ?>>
+                        <?php echo $categoria->categoria; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <input type="submit" value="Buscar" class="boton">
     </form> 
 </div>
 
