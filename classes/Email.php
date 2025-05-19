@@ -17,7 +17,7 @@ class Email {
 
     public function enviarConfirmacion() {
 
-        // create una isntancia de PHPMailer
+        // create una instancia de PHPMailer
         $mail = new PHPMailer();
         
         // Configuración SMTP
@@ -51,7 +51,7 @@ class Email {
    }
 
    public function enviarInstrucciones() {
-        // create una isntancia de PHPMailer
+        // create una instancia de PHPMailer
         $mail = new PHPMailer();
         
         // Configuración SMTP
@@ -77,6 +77,39 @@ class Email {
         $contenido .= "<p>Si tú no solicitaste este cambio, puedes ignorar el mensaje</p>";
         $contenido .= '</html>';
         
+        $mail->Body = $contenido;
+
+        //Enviar el mail
+        $mail->send();
+   }
+
+   public function enviarConfirmacionCita($fecha, $hora) {
+        $mail = new PHPMailer();
+
+        // Configuración SMTP
+        $mail->isSMTP();
+        $mail->Host = 'smtp.mailtrap.io';
+        $mail->SMTPAuth = true;
+        $mail->Port = 2525;
+        $mail->Username = '3283cf851c1e27';
+        $mail->Password = 'afe9cdd1eba9ce';
+
+        // Configurar el contenido del mail
+        $mail->setFrom('cuentas@appsalon.com');
+        $mail->addAddress('cuentas@appsalon.com', 'AppSalon.com');
+        $mail->Subject = 'Confirmación de Cita en AppSalon';
+
+        // Habilitar HTML
+        $mail->isHTML(TRUE);
+        $mail->CharSet = 'UTF-8';
+
+        $contenido = "<html>";
+        $contenido .= "<p>Hola <strong>{$this->nombre}</strong>, tu cita ha sido reservada correctamente.</p>";
+        $contenido .= "<p>Fecha: <strong>{$fecha}</strong></p>";
+        $contenido .= "<p>Hora: <strong>{$hora}</strong></p>";
+        $contenido .= "<p>¡Gracias por confiar en AppSalon!</p>";
+        $contenido .= "</html>";
+
         $mail->Body = $contenido;
 
         //Enviar el mail

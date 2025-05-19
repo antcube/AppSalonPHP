@@ -5,6 +5,8 @@ namespace Controllers;
 use Model\Cita;
 use Model\CitaServicio;
 use Model\Servicio;
+use Classes\Email;
+use Model\Usuario;
 
 class APIController {
     public static function index() {
@@ -31,6 +33,13 @@ class APIController {
             ];
             $citaServicio = new CitaServicio($args);
             $citaServicio->guardar();
+        }
+
+        // Enviar correo de confirmación de cita
+        $usuario = Usuario::find($_POST['usuarioId']);
+        if($usuario) {
+            $email = new Email($usuario->email, $usuario->nombre . ' ' . $usuario->apellido, $usuario->token);
+            $email->enviarConfirmacionCita($_POST['fecha'], $_POST['hora']);
         }
 
         echo json_encode(['resultado' => $resultado]);
