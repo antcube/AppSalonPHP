@@ -1,3 +1,6 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
 .seccion {
     padding: 5rem 0;
     display: none;
@@ -5,9 +8,77 @@
         text-align: center;
     }
 }
+.citas-usuario {
+    display: none;
+}
 .mostrar {
     display: block;
 }
 .ocultar {
     display: none;
+}
+.listado-citas {
+    display: grid;
+    gap: 2rem;
+    margin-top: 4rem;
+    @include m.desktop-xxl {
+        @include m.grid(2, 2rem);
+    }
+    .cita {
+        display: grid;
+        gap: 1rem;
+        background-color: v.$blanco;
+        padding: 2rem;
+        border-radius: 1rem;
+        overflow: hidden;
+        position: relative;
+        &:hover {
+            box-shadow: 0 6px 15px rgba(43, 177, 245, 0.2);
+        }
+        .etiqueta {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            border-radius: 1rem;
+            margin: 0;
+            padding: .5rem 1rem;
+            color: v.$blanco;
+        }
+        .pasada {
+            background-color: v.$rojo;  
+        }
+        .pendiente {
+            background-color: v.$verde;  
+        }
+        .fechaDiv,
+        .horaDiv {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .serviciosDiv,
+        .totalDiv {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            margin-top: 1rem;
+        }
+        img {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+        p {
+            color: v.$negro;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        span {
+            margin-right: .5rem;
+        }
+        h4 {
+            font-weight: v.$bold;
+            margin: 0;
+            color: v.$negro;
+        }
+    }
 }

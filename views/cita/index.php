@@ -1,9 +1,29 @@
-<h1 class="nombre-pagina">Crear Nueva Cita</h1>
+<div class="contenedor-cita-titulo">
+    <h1 class="nombre-pagina">Crear Nueva Cita</h1>
+    <?php if(isset($citas) && count($citas) > 0): ?>
+        <button id="btn-citas" class="boton-verCitas">
+            <img id="icon-citas" src="/build/img/IconCalendar.svg" alt="Ver Citas" title="Ver Citas">
+        </button>
+    <?php endif; ?>
+</div>
 <p class="descripcion-pagina">Elige tus servicios y coloca tus datos</p>
 
 <?php 
     include_once __DIR__ . '/../templates/barra.php';
 ?>
+
+<div id="citas-usuario" class="citas-usuario">
+    <h2>Mis Citas</h2>
+    <div class="campo">
+        <label for="filtro-citas">Filtrar Cita</label>
+        <select id="filtro-citas">
+            <option value="pendientes">Pendientes</option>
+            <option value="pasadas">Pasadas</option>
+            <option value="todas">Todas</option>
+        </select>
+    </div>
+    <div id="citas" class="listado-citas"></div>
+</div>
 
 <div id="app">
     <nav class="tabs">

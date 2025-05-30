@@ -18,4 +18,12 @@ class Cita extends ActiveRecord {
         $this->hora = $args['hora'] ?? '';
         $this->usuarioId = $args['usuarioId'] ?? '';
     }
+
+    public static function serviciosPorCita($citaId) {
+        $query = "SELECT s.id, s.nombre, s.precio 
+                FROM servicios AS s
+                INNER JOIN citasservicios AS cs ON cs.servicioId = s.id
+                WHERE cs.citaId = {$citaId}";
+        return self::SQLAsociativo($query);
+    }
 }

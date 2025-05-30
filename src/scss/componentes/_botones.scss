@@ -7,3 +7,25 @@
 .boton-eliminar {
     @include m.boton(v.$rojo, v.$blanco);
 }
+.boton-verCitas {
+    @include m.boton(transparent, v.$blanco);
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: auto;
+    position: absolute;
+    right: 0;
+    top: -130%;
+    transition: transform 0.3s ease;
+    &:hover {
+        transform: scale(1.1);
+    }
+    img {
+        width: 4.8rem;
+        height: 4.8rem;
+    }
+}
+
+.contenedor-cita-titulo {
+    position: relative;
+}

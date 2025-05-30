@@ -131,10 +131,37 @@ class ActiveRecord {
         return array_shift( $resultado ) ;
     }
 
+    // Busca registros por su id
+    public static function whereAll($columna, $valor, $orden = '') {
+        // Si no se especifica orden, no se agrega
+        if($orden) {
+            $orden = " ORDER BY ${orden}";
+        } else {
+            $orden = '';
+        }
+        $query = "SELECT * FROM " . static::$tabla  ." WHERE ${columna} = '${valor}'" . $orden;
+        $resultado = self::consultarSQL($query);
+        return $resultado;
+    }
+
     // Consulta Plana de SQL (Utilizar cuando los métodos del modelo no son suficientes)
     public static function SQL($query) {
         $resultado = self::consultarSQL($query);
         return $resultado;
+    }
+
+    // Consulta para arrays asociativos
+    public static function SQLAsociativo($query) {
+        $resultado = self::$db->query($query);
+        $array = [];
+        while($registro = $resultado->fetch_assoc()) {
+            $array[] = $registro;
+        }
+
+        // liberar la memoria
+        $resultado->free();
+        
+        return $array;
     }
 
     // crea un nuevo registro

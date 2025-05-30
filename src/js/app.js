@@ -1,4 +1,5 @@
 let paso = 1;
+let citasGlobal = [];
 const pasoInicial = 1;
 const pasoFinal = 3;
 
@@ -29,6 +30,8 @@ function iniciarApp() {
     seleccionarHora(); // Añade la hora de la cita en el objeto
 
     mostrarResumen(); // Muestra el resumen de la cita
+    mostrarPanelCitasUsuario(); // Muestra u oculta las citas del usuario
+    inicializarFiltroCitas(); // Inicializa el filtro de citas
 }
 
 function mostrarSeccion() {
@@ -360,4 +363,182 @@ async function reservarCita() {
             }, 500);
         })
     }
+}
+
+function mostrarPanelCitasUsuario() {
+    const btnCitas = document.getElementById('btn-citas');
+    const iconCitas = document.getElementById('icon-citas');
+    const citasUsuario = document.getElementById('citas-usuario');
+    const panel = document.getElementById('app');
+    const titulo = document.querySelector('.nombre-pagina');
+    const descripcion = document.querySelector('.descripcion-pagina');
+    if(btnCitas && citasUsuario) {
+        btnCitas.addEventListener('click', function() {
+            if(!citasUsuario.classList.contains('mostrar')) {
+                citasUsuario.classList.add('mostrar');
+                panel.classList.add('ocultar');
+                iconCitas.src = 'build/img/IconBack.svg';
+                iconCitas.alt = 'Regresar';
+                iconCitas.title = 'Regresar';
+                titulo.textContent = 'Mis Citas';
+                descripcion.classList.add('ocultar');
+                consultarAPICitasUsuario();
+            } else {
+                citasUsuario.classList.remove('mostrar');
+                panel.classList.remove('ocultar');
+                iconCitas.src = 'build/img/IconCalendar.svg';
+                iconCitas.alt = 'Ver Citas';
+                iconCitas.title = 'Ver Citas';
+                titulo.textContent = 'Crear Nueva Cita';
+                descripcion.classList.remove('ocultar');
+            }
+        });
+    }
+}
+
+async function consultarAPICitasUsuario() {
+    try {
+        const respuesta = await fetch('http://localhost:3000/api/citas');
+        const citas = await respuesta.json();
+        citasGlobal = citas;
+        filtrarCitas();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+function inicializarFiltroCitas() {
+    const filtro = document.querySelector('#filtro-citas');
+    filtro.addEventListener('change', function() {
+        filtrarCitas();
+    });
+}
+
+function filtrarCitas() {
+    const filtro = document.querySelector('#filtro-citas');
+    const hoy = new Date().toISOString().split('T')[0];
+
+    let citasFiltradas = [];
+    if (filtro.value === 'pendientes') {
+        citasFiltradas = citasGlobal.filter(cita => cita.fecha >= hoy);
+    } else if (filtro.value === 'pasadas') {
+        citasFiltradas = citasGlobal.filter(cita => cita.fecha < hoy);
+    } else {
+        citasFiltradas = citasGlobal;
+    }
+
+    mostrarCitasUsuario(citasFiltradas);
+}
+
+function mostrarCitasUsuario(citas) {
+    const citasUsuario = document.querySelector('#citas');
+
+    // Limpiar el contenido de citas
+    while(citasUsuario.firstChild) {
+        citasUsuario.removeChild(citasUsuario.firstChild);
+    }
+
+    if(citas.length === 0) {
+        const noCitas = document.createElement('P');
+        noCitas.textContent = 'No hay citas para mostrar';
+        noCitas.classList.add('text-center');
+        citasUsuario.appendChild(noCitas);
+        return;
+    }
+
+    // Iterar sobre las citas y mostrarlas
+    citas.forEach( cita => {
+        const { id, fecha, hora, servicios } = cita;
+
+        // Card de Cita
+        const citaDiv = document.createElement('DIV');
+        citaDiv.classList.add('cita');
+        citaDiv.dataset.idCita = id;
+
+        // Verificar si la cita es pendiente o pasada
+        const fechaCita = new Date(fecha);
+        const fechaActual = new Date();
+        const estado = fechaCita < fechaActual ? 'Pasada' : 'Pendiente';
+
+        // Etiqueta de Cita
+        const etiqueta = document.createElement('P');
+        etiqueta.classList.add('etiqueta', estado.toLowerCase());
+        etiqueta.textContent = estado;
+
+        // Fecha
+        const fechaDiv = document.createElement('DIV');
+        fechaDiv.classList.add('fechaDiv');
+
+        const fechaIcon = document.createElement('IMG');
+        fechaIcon.src = 'build/img/IconDate.svg';
+        fechaIcon.alt = 'Fecha de Cita';
+
+        const fechaCitaTexto = document.createElement('P');
+        fechaCitaTexto.textContent = fecha;
+
+        const fechaCitaSpan = document.createElement('SPAN');
+        fechaCitaSpan.textContent = 'Fecha: ';
+
+        fechaCitaTexto.prepend(fechaCitaSpan);
+        fechaDiv.appendChild(fechaIcon);
+        fechaDiv.appendChild(fechaCitaTexto);
+
+        // Hora
+        const horaDiv = document.createElement('DIV');
+        horaDiv.classList.add('horaDiv');
+
+        const horaIcon = document.createElement('IMG');
+        horaIcon.src = 'build/img/IconTime.svg';
+        horaIcon.alt = 'Hora de Cita';
+
+        const horaCitaTexto = document.createElement('P');
+        horaCitaTexto.textContent = hora;
+
+        const horaCitaSpan = document.createElement('SPAN');
+        horaCitaSpan.textContent = 'Hora: ';
+
+        horaCitaTexto.prepend(horaCitaSpan);
+        horaDiv.appendChild(horaIcon);
+        horaDiv.appendChild(horaCitaTexto);
+
+        citaDiv.appendChild(etiqueta);
+        citaDiv.appendChild(fechaDiv);
+        citaDiv.appendChild(horaDiv);
+
+        // Mostrar servicios
+        if(servicios) {
+            const serviciosDiv = document.createElement('DIV');
+            serviciosDiv.classList.add('serviciosDiv');
+
+            const serviciosTitulo = document.createElement('H4');
+            serviciosTitulo.textContent = 'Servicios:';
+            serviciosDiv.appendChild(serviciosTitulo);
+
+            servicios.forEach( servicio => {
+                const servicioP = document.createElement('P');
+                servicioP.textContent = `${servicio.nombre} - S/. ${servicio.precio}`;
+                serviciosDiv.appendChild(servicioP);
+            });
+
+            citaDiv.appendChild(serviciosDiv);
+        }
+
+        // Mostrar total
+        const totalDiv = document.createElement('DIV');
+        totalDiv.classList.add('totalDiv');
+
+        const totalTitulo = document.createElement('H4');
+        totalTitulo.textContent = 'Total:';
+
+        const totalPrecio = document.createElement('P');
+        const total = servicios.reduce((acc, servicio) => acc + parseFloat(servicio.precio), 0);
+        totalPrecio.textContent = `S/. ${total.toFixed(2)}`;
+
+        totalDiv.appendChild(totalTitulo);
+        totalDiv.appendChild(totalPrecio);
+
+        citaDiv.appendChild(totalDiv);
+
+        citasUsuario.appendChild(citaDiv);
+    });
 }

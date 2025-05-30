@@ -58,4 +58,22 @@ class APIController {
             header('Location:' . $_SERVER['HTTP_REFERER']);
         }
     }
+
+    public static function citasUsuario() {
+        session_start();
+        $usuarioId = $_SESSION['id'] ?? null;
+        if(!$usuarioId) {
+            echo json_encode([]);
+            return;
+        }
+        // Obtener todas las citas del usuario
+        $citas = Cita::whereAll('usuarioId', $usuarioId, 'fecha DESC, hora DESC');
+
+        // Obtener los servicios de cada cita
+        foreach($citas as &$cita) {
+            $cita->servicios = Cita::serviciosPorCita($cita->id);
+        }
+
+        echo json_encode($citas);
+    }
 }
